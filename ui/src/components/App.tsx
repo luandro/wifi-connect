@@ -24,6 +24,7 @@ export interface NetworkInfo {
 	ssid?: string;
 	identity?: string;
 	passphrase?: string;
+	iface?: string;
 }
 
 export interface Network {
@@ -31,13 +32,38 @@ export interface Network {
 	security: string;
 }
 
+export interface Iface {
+	path: string;
+	iface: string;
+	connected: boolean;
+	driver: string;
+	type: string;
+	apCapable: boolean;
+}
+
 const App = () => {
 	const [attemptedConnect, setAttemptedConnect] = React.useState(false);
 	const [isFetchingNetworks, setIsFetchingNetworks] = React.useState(true);
 	const [error, setError] = React.useState('');
+	const [secondaryWifi, setSecondaryWifi] = React.useState<Iface>();
 	const [availableNetworks, setAvailableNetworks] = React.useState<Network[]>(
 		[],
 	);
+
+	React.useEffect(() => {
+		fetch('http://localhost:4000/bridge')
+			.then((data) => {
+				if (data.status !== 200) {
+					throw new Error(data.statusText);
+				}
+
+				return data.json();
+			})
+			.then(setSecondaryWifi)
+			.catch((e: Error) => {
+				setError(`Failed to fetch available networks. ${e.message || e}`);
+			});
+	}, []);
 
 	React.useEffect(() => {
 		fetch('/networks')
@@ -78,6 +104,28 @@ const App = () => {
 			});
 	};
 
+	const onRepeat = (data: NetworkInfo) => {
+		data.iface = secondaryWifi?.iface;
+		setAttemptedConnect(true);
+		setError('');
+
+		fetch('http://localhost:4000/repeat', {
+			method: 'POST',
+			body: JSON.stringify(data),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		})
+			.then((resp) => {
+				if (resp.status !== 200) {
+					throw new Error(resp.statusText);
+				}
+			})
+			.catch((e: Error) => {
+				setError(`Failed to connect to the network. ${e.message || e}`);
+			});
+	};
+
 	return (
 		<Provider>
 			<GlobalStyle />
@@ -94,6 +142,8 @@ const App = () => {
 				<NetworkInfoForm
 					availableNetworks={availableNetworks}
 					onSubmit={onConnect}
+					onRepeat={onRepeat}
+					secondaryWifi={secondaryWifi}
 				/>
 			</Container>
 		</Provider>
