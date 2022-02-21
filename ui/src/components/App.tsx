@@ -42,6 +42,9 @@ export interface Iface {
 }
 
 const App = () => {
+	const { hostname, protocol } = window.location;
+	const repeaterServicePort = 4000;
+	const localUrl = `${protocol}//${hostname}:${repeaterServicePort}`;
 	const [attemptedConnect, setAttemptedConnect] = React.useState(false);
 	const [isFetchingNetworks, setIsFetchingNetworks] = React.useState(true);
 	const [error, setError] = React.useState('');
@@ -51,7 +54,8 @@ const App = () => {
 	);
 
 	React.useEffect(() => {
-		fetch('http://localhost:4000/bridge')
+		console.log('FETCHING BRIDGE', localUrl);
+		fetch(`${localUrl}/bridge`)
 			.then((data) => {
 				if (data.status !== 200) {
 					throw new Error(data.statusText);
@@ -61,9 +65,9 @@ const App = () => {
 			})
 			.then(setSecondaryWifi)
 			.catch((e: Error) => {
-				setError(`Failed to fetch available networks. ${e.message || e}`);
+				setError(`Failed to fetch bridge devices. ${e.message || e}`);
 			});
-	}, []);
+	}, [localUrl]);
 
 	React.useEffect(() => {
 		fetch('/networks')
@@ -109,7 +113,7 @@ const App = () => {
 		setAttemptedConnect(true);
 		setError('');
 
-		fetch('http://localhost:4000/repeat', {
+		fetch(`${localUrl}/repeat`, {
 			method: 'POST',
 			body: JSON.stringify(data),
 			headers: {
