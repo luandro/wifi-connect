@@ -1,13 +1,14 @@
 import { JSONSchema7 as JSONSchema } from 'json-schema';
 import * as React from 'react';
-import { Flex, Form, Heading, RenditionUiSchema } from 'rendition';
+import { Button, Flex, Form, Heading, RenditionUiSchema } from 'rendition';
 import { Network, NetworkInfo, Iface } from './App';
+import { RefreshIcon } from './RefreshIcon';
 
 const getSchema = (availableNetworks: Network[]): JSONSchema => ({
 	type: 'object',
 	properties: {
 		ssid: {
-			title: 'SSID',
+			title: 'Nome da rede',
 			type: 'string',
 			default: availableNetworks[0]?.ssid,
 			oneOf: availableNetworks.map((network) => ({
@@ -21,7 +22,7 @@ const getSchema = (availableNetworks: Network[]): JSONSchema => ({
 			default: '',
 		},
 		passphrase: {
-			title: 'Passphrase',
+			title: 'Senha',
 			type: 'string',
 			default: '',
 		},
@@ -61,6 +62,7 @@ const isEnterpriseNetwork = (
 };
 
 interface NetworkInfoFormProps {
+	fetchNetworks: () => void;
 	availableNetworks: Network[];
 	secondaryWifi: Iface | undefined;
 	onSubmit: (data: NetworkInfo) => void;
@@ -68,6 +70,7 @@ interface NetworkInfoFormProps {
 }
 
 export const NetworkInfoForm = ({
+	fetchNetworks,
 	availableNetworks,
 	secondaryWifi,
 	onSubmit,
@@ -89,7 +92,18 @@ export const NetworkInfoForm = ({
 			mt={5}
 		>
 			<Heading.h3 align="center" mb={4}>
-				Hi! Please choose your WiFi from the list
+				<Flex flexDirection={['column', 'row']} flexWrap="wrap">
+					Olá! Por favor selecione o WiFi
+					<Button
+						ml={[0, 3]}
+						tertiary
+						plain
+						icon={<RefreshIcon />}
+						onClick={fetchNetworks}
+					>
+						Rescanear
+					</Button>
+				</Flex>
 			</Heading.h3>
 
 			<Form
@@ -103,7 +117,7 @@ export const NetworkInfoForm = ({
 				uiSchema={getUiSchema(isSelectedNetworkEnterprise)}
 				secondaryButtonProps={{
 					onClick: () => onRepeat(data),
-					children: 'Repeat',
+					children: 'Repetir',
 					width: '45%',
 					mx: '20%',
 					mt: 3,
@@ -115,7 +129,7 @@ export const NetworkInfoForm = ({
 					mt: 3,
 					disabled: availableNetworks.length <= 0,
 				}}
-				submitButtonText={'Connect'}
+				submitButtonText={'Conectar'}
 			/>
 		</Flex>
 	);

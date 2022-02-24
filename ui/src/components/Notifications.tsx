@@ -14,19 +14,19 @@ export const Notifications = ({
 		<>
 			{attemptedConnect && (
 				<Alert m={2} info>
-					<Txt.span>Applying changes... </Txt.span>
+					<Txt.span>Aplicando mudanças... </Txt.span>
 					<Txt.span>
-						Your device will soon be online. If connection is unsuccessful, the
-						Access Point will be back up in a few minutes, and reloading this
-						page will allow you to try again.
+						Em breve, seu dispositivo estará online. Se a conexão não for
+						bem-sucedida, o ponto de acesso estará de volta em alguns minutos, e
+						recarregar este página permitirá que você tente novamente.
 					</Txt.span>
 				</Alert>
 			)}
 			{!hasAvailableNetworks && (
 				<Alert m={2} warning>
-					<Txt.span>No wifi networks available.&nbsp;</Txt.span>
 					<Txt.span>
-						Please ensure there is a network within range and reboot the device.
+						Não há redes wi-fi disponíveis. Clique em 'Rescanear' para pesquisar
+						novamente.
 					</Txt.span>
 				</Alert>
 			)}

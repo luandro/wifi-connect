@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../img/logo.svg';
+import logo from '../img/coolab_logo_preto.png';
 import { Navbar, Provider, Container } from 'rendition';
 import { NetworkInfoForm } from './NetworkInfoForm';
 import { Notifications } from './Notifications';
@@ -69,7 +69,8 @@ const App = () => {
 			});
 	}, [localUrl]);
 
-	React.useEffect(() => {
+	const fetchNetworks = () => {
+		setIsFetchingNetworks(true);
 		fetch('/networks')
 			.then((data) => {
 				if (data.status !== 200) {
@@ -85,6 +86,10 @@ const App = () => {
 			.finally(() => {
 				setIsFetchingNetworks(false);
 			});
+	};
+
+	React.useEffect(() => {
+		fetchNetworks();
 	}, []);
 
 	const onConnect = (data: NetworkInfo) => {
@@ -133,7 +138,13 @@ const App = () => {
 	return (
 		<Provider>
 			<GlobalStyle />
-			<Navbar brand={<img src={logo} style={{ height: 30 }} alt="logo" />} />
+			<Navbar
+				brand={
+					<a href="https://coolab.org">
+						<img src={logo} style={{ height: 30 }} alt="logo" />
+					</a>
+				}
+			/>
 
 			<Container>
 				<Notifications
@@ -144,6 +155,7 @@ const App = () => {
 					error={error}
 				/>
 				<NetworkInfoForm
+					fetchNetworks={fetchNetworks}
 					availableNetworks={availableNetworks}
 					onSubmit={onConnect}
 					onRepeat={onRepeat}
